@@ -11,7 +11,7 @@ public class Coevolution {
         caFitness = new double[N][N];
         icFitness = new double[N][N];
         initUniform();
-        computeFitnesses();
+        computeFitnesses(true);
     }
 
     public double[][] getCAFitnesses() {
@@ -107,10 +107,17 @@ public class Coevolution {
         return fc.isAllZero();
     }
 
-    public void computeFitnesses() {
+    public void computeFitnesses(boolean printing) {
+        if (printing) {
+            System.out.println("Computing Fitnesses...");
+        }
         for (int i = 0; i < size(); i++) {
             for (int j = 0; j < size(); j++) {
                 computeFitness(i,j);
+                if (printing) {
+                    System.out.printf("(%d, %d) CA Fitness: %.2f IC Fitness %.2f\n", 
+                        i, j, caFitness[i][j], icFitness[i][j]);
+                }
             }
         }
     }
@@ -119,10 +126,61 @@ public class Coevolution {
         return (double) cells.numOnes()/cells.length();
     }
 
+    public int adjustIndex(int i) {
+        return (((i % size()) + size()) % size());  // Periodic boundary conditions
+    }
+
     public double getICFitness(CellArray ic, boolean correct) {
         if (correct) {
             return 0.0;
         }
         return Math.abs(density(ic) - 0.5);
     }
+
+
+    public void selectParent(int i, int j) {
+    /*
+        * for each neighbor of (i,j), collect associated ca,ic pair.
+        * sort this collection by fitness
+        * select CA or IC such that that each has a (.5)^rank probability of being
+          selected. Except the last rank, which gets (.5)^8 so that it sums to 1.
+        * Return the CA or IC?? 
+    */
+    }
+
+
+    public static int choose(double[] probabilities) {
+        /* 
+        probabilities is an n-length array of values that should sum to less than 1.
+        This function returns an integer in range [0, n] (inclusive!), with
+        probability(i) = probabilities[i] for i = 0..n-1
+                       = 1 - sum(probabilities) for i = n 
+        */ 
+        
+        // Create partitions
+        int n = probabilities.length;
+        double[] partition = new double[n];
+        double sum = 0.0;
+        for (int i = 0; i < n; i++) {
+            sum += probabilities[i];
+            partition[i] = sum;
+        }
+
+        // Validate input
+        assert (sum <= 1);
+
+        // Get random number in range 0..1. 
+        double randomNum = Math.random();
+
+        // Discover where in the parition the random number falls and return the appropriate value
+        if (randomNum < partition[0]) return 0;
+        for (int i = 1; i < n; i++) {
+            if ((randomNum >= partition[i-1]) && (randomNum < partition[i])) {
+                return i;
+            }
+        }
+        return n;
+    }
+
 }
+

@@ -15,11 +15,11 @@ public class CoevGrid {
     }
 
     public CA getCA(int row, int col) {
-        return this.get(row, col).ca;
+        return this.get(row, col).getCA();
     }
 
     public CellArray getIC(int row, int col) {
-        return this.get(row,col).ic;
+        return this.get(row,col).getIC();
     }
 
     public void set(int row, int col, CoevPair cp) {

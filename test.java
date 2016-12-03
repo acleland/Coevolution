@@ -153,7 +153,29 @@ public class CA_test {
         printArray(icFitness);
     }
 
+    public static void chooseTest() {
+        double[] probs = {.7, .2};
+        int[] counts = {0, 0, 0};
+        int val = 0;
+        int N = 10000;
+        for (int i = 0; i < N; i++) {
+            val = Coevolution.choose(probs);
+            System.out.println(val);
+            switch(val) {
+                case 0: counts[0] +=1;
+                        break;
+                case 1: counts[1] +=1;
+                        break;
+                case 2: counts[2] +=1;
+                        break;
+
+            }
+
+        }
+        System.out.printf("\n0: %.2f\n 1: %.2f\n 2: %.2f\n", (double)counts[0]/N, (double)counts[1]/N, (double)counts[2]/N);
+    }
+
     public static void main(String[] args) {
-        coevolutionTest(20);
+        chooseTest();
     }
 }

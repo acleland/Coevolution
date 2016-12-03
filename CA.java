@@ -70,10 +70,13 @@ public class CA {
         return ruleTable.length();
     }
 
+
     @Override
     public String toString() {
         return ruleTable.toString();
     }
+
+
 
     
 }
