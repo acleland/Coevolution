@@ -1,4 +1,6 @@
-public class CA_test {
+import java.util.*;
+
+public class test {
     public static void cellArrayTest() {
         CellArray cells = new CellArray(10);
         System.out.println(cells);
@@ -59,39 +61,15 @@ public class CA_test {
 
     public static void CoevGridTest(int N) {
         CoevGrid grid = new CoevGrid(N);
-        for (int i=0; i < grid.length(); i++) {
-            for (int j=0; j < grid.length(); j++) {
+        for (int i=0; i < grid.size(); i++) {
+            for (int j=0; j < grid.size(); j++) {
                 grid.set(i, j, new CoevPair(new CA(), new CellArray(149)));
             }
         }
         System.out.println(grid.getCA(0,0).getRuleTable()); 
         System.out.println(grid.getIC(0,0));
     }
-/*
-    public static void CAFitnessTest(int N) {
-        Coevolution coev = new Coevolution(N);
-        coev.initUnbiased();
-        double fitness = 0.0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                fitness = coev.getCAFitness(i,j);
-                System.out.printf("%.2f ", fitness);
-            }
-            System.out.println();
-        }
-    }
 
-    public static void CAFitnessTest2(int N) {
-        Coevolution coev = new Coevolution(N);
-        coev.initUnbiased();
-        double fitness = 0.0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                fitness = coev.getCAFitness(i,j, true);
-            }
-        }
-    }
-*/
     public static void initUniformTest(int N) {
         CellArray cells = new CellArray(N);
         cells.initWithDensity(.61);
@@ -101,65 +79,15 @@ public class CA_test {
         System.out.println(cells);
         System.out.printf("Num 1s: %d\n", cells.numOnes());
     }
-/*
-    public static void CAFitnessTestUniform(int N) {
-        Coevolution coev = new Coevolution(N);
-        coev.initUniform();
-        double fitness = 0.0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                fitness = coev.getCAFitness(i,j);
-                System.out.printf("%.2f ", fitness);
-            }
-            System.out.println();
-        }
-    }
 
-    public static void CAFitnessTest2Uniform(int N) {
-        Coevolution coev = new Coevolution(N);
-        coev.initUniform();
-        double fitness = 0.0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                fitness = coev.getCAFitness(i,j, true);
-            }
-        }
-    }
-
-    public static void fitnessGridTest(int N) {
-        Coevolution coev = new Coevolution(N);
-        coev.initUniform();
-        double[][] fitnessGrid = coev.getFitnessGrid(true);
-    }
-*/
-    public static void printArray(double[][] array) {
-        int length = array.length;
-        int width = array[0].length;
-        for (int i = 0; i < length; i++) {
-            for (int j = 0; j < width; j++) {
-                System.out.printf("%.2f ", array[i][j]);
-            }
-            System.out.println();
-        }
-    }
-
-    public static void coevolutionTest(int N) {
-        Coevolution coev = new Coevolution(N);
-        double[][] caFitness = coev.getCAFitnesses();
-        double[][] icFitness = coev.getICFitnesses();
-        System.out.println("CA fitnesses:");
-        printArray(caFitness);
-        System.out.println("\nIC fitnesses");
-        printArray(icFitness);
-    }
 
     public static void chooseTest() {
-        double[] probs = {.7, .2};
+        double[] probs = {.1, .2};
         int[] counts = {0, 0, 0};
         int val = 0;
         int N = 10000;
         for (int i = 0; i < N; i++) {
-            val = Coevolution.choose(probs);
+            val = CoevGrid.choose(probs);
             System.out.println(val);
             switch(val) {
                 case 0: counts[0] +=1;
@@ -175,7 +103,66 @@ public class CA_test {
         System.out.printf("\n0: %.2f\n 1: %.2f\n 2: %.2f\n", (double)counts[0]/N, (double)counts[1]/N, (double)counts[2]/N);
     }
 
+    public static void computeFitnessesTest() {
+        CoevGrid coev = new CoevGrid(10);
+        coev.initUniform();
+        coev.print();
+        System.out.println("Computing Fitnesses");
+        coev.computeFitnesses(false);
+        coev.printCAFitnesses();
+        coev.printICFitnesses();
+
+        List<CoevPair> neighbors = coev.getNeighbors(4,4);
+        System.out.println(neighbors);
+
+        coev.sortByCAFitness(neighbors);
+        System.out.println(neighbors);
+        CoevPair caParent = coev.selectByRank(neighbors);
+        System.out.println(caParent);
+
+        coev.sortByICFitness(neighbors);
+        System.out.println(neighbors);
+        CoevPair icParent = coev.selectByRank(neighbors);
+        System.out.println(icParent);
+        
+    }
+
+    public static void crossoverTest() {
+        CellArray one = new CellArray(21);
+        one.initRandomUnbiased();
+        CellArray two = new CellArray(21);
+        two.initRandomUnbiased();
+
+        System.out.println(one);
+        System.out.println(two);
+
+        CellArray three = one.crossover(two);
+        System.out.println(three);
+    }
+
+    public static void parentSelectionTest() {
+        CoevGrid coev = new CoevGrid(3);
+        coev.initUniform();
+        coev.print();
+        System.out.println("Computing Fitnesses");
+        coev.computeFitnesses(false);
+        coev.printCAFitnesses();
+        coev.printICFitnesses();
+
+        System.out.println("Selecting Parents");
+        CoevGrid coev2 = coev.selectParents();
+        coev2.print();   
+    }
+
+    public static void mutateTest() {
+        CellArray cells = new CellArray(20);
+        cells.initRandomUnbiased();
+        System.out.println(cells);
+        cells.mutate(.1);
+        System.out.println(cells);
+    }
+
     public static void main(String[] args) {
-        chooseTest();
+        mutateTest();
     }
 }

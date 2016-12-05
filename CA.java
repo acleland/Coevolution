@@ -5,16 +5,33 @@ public class CA {
     public CA(int neighborhoodSize) {
         this.neighborhoodSize = neighborhoodSize;
         ruleTable = new CellArray(1<<(2*neighborhoodSize+1));
-        ruleTable.initRandomUnbiased();
     }
+
+    /*
+    length = 2^(2n+1)  -> lg(length) = 2n + 1  -> n = [lg(length) - 1]/2
+     */
 
     public CA() {
         this(3);  // By default, initialize with neighborhood of 3
     }
 
+    public CA(CellArray ruleTable) {
+        this.ruleTable = ruleTable;
+    }
+
     public CellArray getRuleTable() {
         return ruleTable;
     }
+
+
+      public int length() {
+        return ruleTable.length();
+    }
+
+    public int neighborhoodSize() {
+        return neighborhoodSize;
+    }
+
 
     public int getNeighborhood(int cellIndex, CellArray cells) {
         int neighborhood = 0;
@@ -66,10 +83,12 @@ public class CA {
         return run(initialState, maxIter, false);
     }
 
-    public int length() {
-        return ruleTable.length();
+    public CA crossover(CA other) {
+        // Return new CA with rule tables crossed over with another CA
+        // This assumes this and other have the same neighborhoodSize.
+        assert (this.neighborhoodSize() == other.neighborhoodSize());
+        return new CA(this.getRuleTable().crossover(other.getRuleTable()));
     }
-
 
     @Override
     public String toString() {

@@ -8,6 +8,13 @@ public class CellArray {
         setAllZero();
     }
 
+    public CellArray(CellArray cellsToCopy) {
+        this(cellsToCopy.length());
+        for (int i = 0; i < length(); i++) {
+            this.set(i, cellsToCopy.get(i));
+        }
+    }
+
     public int get(int index) {
         index = adjustIndex(index);
         if (cells[index]) {
@@ -74,6 +81,15 @@ public class CellArray {
         }
     }
 
+    public void init(boolean uniform) {
+        if (uniform) {
+            initUniform();
+        }
+        else {
+            initRandomUnbiased();
+        }
+    }
+
     public void initWithDensity(double density) {
         assert ((density > 0) && (density < 1));
         int numOnes = (int) Math.round(density*length());
@@ -124,6 +140,44 @@ public class CellArray {
             }
         }
         return sum;
+    }
+
+    public double density() {
+        return (double) numOnes()/length();
+    }
+
+    public CellArray crossover(CellArray other) {
+        // This assumes this and other have the same length
+        assert (this.length() == other.length());
+        Random random = new Random();
+        CellArray child1 = new CellArray(length());
+        CellArray child2 = new CellArray(length());
+
+        int crossoverPoint = random.nextInt(length());
+        for (int i = 0; i < crossoverPoint; i++) {
+            child1.set(i, this.get(i));
+            child2.set(i, other.get(i));
+        }
+
+        for (int i = crossoverPoint; i < length(); i++) {
+            child1.set(i, other.get(i));
+            child2.set(i, this.get(i));
+        }
+
+        // Return one of the two children at random
+        int flipCoin = random.nextInt(2);
+        if (flipCoin == 0) {
+            return child1;
+        }
+        return child2;
+    }
+
+    public void mutate(double probability) {
+        for (int i = 0; i < length(); i++) {
+            if (Math.random() < probability) {
+                flip(i);
+            }
+        }
     }
 
 
